@@ -81,6 +81,10 @@ class JointAttentionModel(FairseqModel):
         parser.add_argument('--language-embeddings', action='store_true',
                             help='use language embeddings')
 
+        #
+        parser.add_argument('--depth-decoding', action='store_true',
+                            help='Enable depth-decoding mode. by revo')
+
     @classmethod
     def build_model(cls, args, task):
         """Build a new model instance."""
@@ -164,7 +168,7 @@ class JointAttentionEncoder(FairseqEncoder):
 
         self.register_buffer('version', torch.Tensor([2]))
 
-    def forward(self, src_tokens, src_lengths):
+    def forward(self, src_tokens, src_lengths, level=1.):
         """
         Args:
             src_tokens (LongTensor): tokens in the source language of shape
@@ -283,7 +287,7 @@ class JointAttentionDecoder(FairseqIncrementalDecoder):
         if self.normalize:
             self.layer_norm = LayerNorm(embed_dim)
 
-    def forward(self, prev_output_tokens, encoder_out, incremental_state=None):
+    def forward(self, prev_output_tokens, encoder_out, incremental_state=None, level=1.):
         """
         Args:
             input (dict): with
@@ -345,9 +349,11 @@ class JointAttentionDecoder(FairseqIncrementalDecoder):
         else:
             self_attn_padding_mask = None
 
+        last_target_layer = int(len(self.layers) * level)
         # transformer layers
         for i, layer in enumerate(self.layers):
-
+            if i == last_target_layer:
+                break
             if self.kernel_size_list is not None:
                 target_mask = self.local_mask(x, self.kernel_size_list[i], causal=True, tgt_len=tgt_len)
             elif incremental_state is None:
@@ -630,6 +636,9 @@ def base_architecture(args):
     args.kernel_size_list = getattr(args, 'kernel_size_list', None)
     assert args.kernel_size_list is None or len(args.kernel_size_list) == args.decoder_layers, "kernel_size_list doesn't match decoder_layers"
     args.language_embeddings = getattr(args, 'language_embeddings', True)
+
+    # depth-adative
+    args.depth_decoding = getattr(args, 'depth_decoding', False)
 
 
 @register_model_architecture('joint_attention', 'joint_attention_iwslt_de_en')
