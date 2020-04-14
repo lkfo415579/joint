@@ -89,6 +89,18 @@ class FairseqTask(object):
         return self.datasets[split]
 
     def get_cond_fn_by_srcfile(self, src):
+        import os.path
+        import pickle
+        tmp_f = src._path + ".cdf.pickle"
+        if os.path.exists(tmp_f):
+            print("# Loaded tmp_f of rarity-data.")
+            tmp_f = open(tmp_f, 'rb')
+            cdf_scores = pickle.load(tmp_f)
+
+            def rarity_cond(idx, rand_num=1.):
+                return cdf_scores[idx]
+            return rarity_cond
+
         print("# Generating rarity-data by", src._path)
         pre_folder = 'data-bin/'
         cdf = pre_folder + 'de-rarity-cdf_base.npz'
@@ -124,12 +136,25 @@ class FairseqTask(object):
         for sent_words in src:
             cdf_scores.append(get_cdf_by_sent(sent_words))
 
-        def rarity_cond(idx, rand_num):
-            if cdf_scores[idx] < rand_num:
-                return False
-            return True
+        f = open(tmp_f, 'wb')
+        pickle.dump(cdf_scores, f)
+        f.close()
+
+        def rarity_cond(idx, rand_num=1.):
+            # if cdf_scores[idx] < rand_num:
+            #     return False
+            # return True
+            return cdf_scores[idx]
         print("# Finished generating rarity data")
         return rarity_cond
+
+    def test_size_batches(self, samplers):
+        size = 0
+        for batch in samplers:
+            size += len(batch)
+            if isinstance(batch[-1], float):
+                size -= 1
+        print("# Samples size : %d" % size)
 
     def get_batch_iterator(
         self, dataset, max_tokens=None, max_sentences=None, max_positions=None,
@@ -180,6 +205,8 @@ class FairseqTask(object):
             )
 
         # create rarity data from input-source-data
+        # print("ARGS:", self.args)
+        # self.args.depth_decoding = True
         if 'depth_decoding' in self.args and self.args.depth_decoding:
             cond_fn = self.get_cond_fn_by_srcfile(dataset.src)
         else:
@@ -190,6 +217,8 @@ class FairseqTask(object):
             indices, dataset.num_tokens, max_tokens=max_tokens, max_sentences=max_sentences,
             required_batch_size_multiple=required_batch_size_multiple, rarity_cond=cond_fn
         )
+
+        self.test_size_batches(batch_sampler)
 
         # return a reusable, sharded iterator
         return iterators.EpochBatchIterator(

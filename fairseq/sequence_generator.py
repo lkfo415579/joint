@@ -288,6 +288,10 @@ class SequenceGenerator(object):
                 model.reorder_incremental_state(reorder_state)
                 encoder_outs = model.reorder_encoder_out(encoder_outs, reorder_state)
 
+            # for batch-level push forward to decoder side
+            if 'level' in sample['net_input']:
+                encoder_outs[0]['level'] = sample['net_input']['level']
+
             lprobs, avg_attn_scores = model.forward_decoder(
                 tokens[:, :step + 1], encoder_outs, temperature=self.temperature,
             )
