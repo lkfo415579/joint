@@ -1,0 +1,17 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+data
+release
+data-bin
+.vscode
+checkpoints/
+examples/*/
+*.out
+*.log
+*.sh
+.pylintrc
+
+venv/
