@@ -2,7 +2,6 @@
 <project version="4">
   <component name="BookmarkManager">
     <bookmark url="file://$PROJECT_DIR$/models/joint.py" description="layer_entry" line="459" />
-    <bookmark url="file://$PROJECT_DIR$/fairseq/data/language_pair_dataset.py" description="dataset" line="24" />
     <bookmark url="file://$PROJECT_DIR$/fairseq/tasks/fairseq_task.py" description="batch_generating" line="209" />
   </component>
   <component name="ChangeListManager">
@@ -20,50 +19,7 @@
     <SUITE FILE_PATH="coverage/joint$fairseq_gen_full.coverage" NAME="fairseq-gen-full Coverage Results" MODIFIED="1587003962896" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
   <component name="FileEditorManager">
-    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/models/joint.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="73">
-              <caret line="336" column="53" lean-forward="true" selection-start-line="336" selection-start-column="53" selection-end-line="336" selection-end-column="53" />
-              <folding>
-                <element signature="e#242#253#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/.gitignore">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="256">
-              <caret line="16" column="5" selection-start-line="16" selection-start-column="5" selection-end-line="16" selection-end-column="5" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/models/protected_multihead_attention.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="169">
-              <caret line="128" column="25" selection-start-line="128" selection-start-column="25" selection-end-line="128" selection-end-column="25" />
-              <folding>
-                <element signature="e#286#298#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/fairseq/utils.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="201">
-              <caret line="82" selection-start-line="82" selection-end-line="82" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-    </leaf>
+    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300" />
   </component>
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
@@ -335,9 +291,9 @@
       <method v="2" />
     </configuration>
     <list>
-      <item itemvalue="Python.fairseq-gen" />
-      <item itemvalue="Python.fairseq-gen-full" />
       <item itemvalue="Python.fairseq-gen-base" />
+      <item itemvalue="Python.fairseq-gen-full" />
+      <item itemvalue="Python.fairseq-gen" />
       <item itemvalue="Python.fairseq-train-real" />
       <item itemvalue="Python.fairseq-train" />
     </list>
@@ -368,22 +324,21 @@
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="126374000" />
+    <option name="totallyTimeSpent" value="126460000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-7" y="-7" width="2062" height="1126" extended-state="6" />
-    <editor active="true" />
     <layout>
       <window_info id="Favorites" order="0" side_tool="true" />
-      <window_info active="true" content_ui="combo" id="Project" order="1" visible="true" weight="0.12037962" />
+      <window_info content_ui="combo" id="Project" order="1" visible="true" weight="0.12037962" />
       <window_info id="Structure" order="2" side_tool="true" weight="0.25" />
       <window_info anchor="bottom" id="Docker" order="0" show_stripe_button="false" />
       <window_info anchor="bottom" id="Version Control" order="1" show_stripe_button="false" />
       <window_info anchor="bottom" id="File Transfer" order="2" weight="0.15392561" />
       <window_info anchor="bottom" id="Database Changes" order="3" show_stripe_button="false" />
       <window_info anchor="bottom" id="Python Console" order="4" />
-      <window_info anchor="bottom" id="Terminal" order="5" sideWeight="0.499001" visible="true" weight="0.3481405" />
-      <window_info anchor="bottom" id="Event Log" order="6" sideWeight="0.500999" side_tool="true" visible="true" weight="0.3481405" />
+      <window_info active="true" anchor="bottom" id="Terminal" order="5" sideWeight="0.499001" visible="true" weight="0.3481405" />
+      <window_info anchor="bottom" id="Event Log" order="6" sideWeight="0.500999" side_tool="true" weight="0.3481405" />
       <window_info anchor="bottom" id="Message" order="7" />
       <window_info anchor="bottom" id="Find" order="8" />
       <window_info anchor="bottom" x="2560" y="23" width="2048" height="1129" id="Run" maximized="true" order="9" type="WINDOWED" visible="true" weight="0.4018595" />
@@ -565,13 +520,7 @@
     </expressions>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/fairseq/data/transform_eos_lang_pair_dataset.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="528">
-          <caret line="34" column="13" selection-start-line="34" selection-start-column="13" selection-end-line="34" selection-end-column="13" />
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$PROJECT_DIR$/fairseq/data/transform_eos_lang_pair_dataset.py" />
     <entry file="file://$USER_HOME$/.PyCharm2018.3/system/remote_sources/-2127352610/201545292/multiprocessing/queues.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="206">
@@ -589,11 +538,7 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/fairseq/data/data_utils_fast.cpp">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-6144" />
-      </provider>
-    </entry>
+    <entry file="file://$PROJECT_DIR$/fairseq/data/data_utils_fast.cpp" />
     <entry file="file://$USER_HOME$/.PyCharm2018.3/system/remote_sources/-2127352610/125375885/pkg_resources/__init__.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="302">
@@ -608,13 +553,7 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/fairseq/data/fairseq_dataset.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="176">
-          <caret line="12" column="8" selection-start-line="12" selection-start-column="8" selection-end-line="12" selection-end-column="8" />
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$PROJECT_DIR$/fairseq/data/fairseq_dataset.py" />
     <entry file="file://$PROJECT_DIR$/fairseq/models/fairseq_encoder.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="206">
@@ -650,30 +589,9 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/fairseq/data/iterators.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="205">
-          <caret line="35" selection-start-line="35" selection-end-line="35" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/fairseq/data/data_utils_fast.pyx">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="493">
-          <caret line="84" column="26" lean-forward="true" selection-start-line="84" selection-start-column="26" selection-end-line="84" selection-end-column="26" />
-          <folding>
-            <element signature="e#205#223#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/fairseq/data/data_utils.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-367">
-          <caret line="234" column="22" selection-start-line="234" selection-start-column="22" selection-end-line="234" selection-end-column="22" />
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$PROJECT_DIR$/fairseq/data/iterators.py" />
+    <entry file="file://$PROJECT_DIR$/fairseq/data/data_utils_fast.pyx" />
+    <entry file="file://$PROJECT_DIR$/fairseq/data/data_utils.py" />
     <entry file="file://$USER_HOME$/.PyCharm2018.3/system/remote_sources/-2127352610/125375885/torch/nn/modules/container.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="205">
@@ -695,13 +613,7 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/fairseq/data/language_pair_dataset.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-1567">
-          <caret line="28" column="17" selection-start-line="28" selection-start-column="17" selection-end-line="28" selection-end-column="17" />
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$PROJECT_DIR$/fairseq/data/language_pair_dataset.py" />
     <entry file="file://$PROJECT_DIR$/fairseq/checkpoint_utils.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="48">

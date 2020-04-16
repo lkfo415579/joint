@@ -13,5 +13,8 @@ examples/*/
 *.log
 *.sh
 .pylintrc
+<<<<<<< HEAD
 
 venv/
+=======
+>>>>>>> c3b295d7e1e02ad582a54180479e84708b86da55
