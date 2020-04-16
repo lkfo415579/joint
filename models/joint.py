@@ -337,11 +337,18 @@ class JointAttentionDecoder(FairseqIncrementalDecoder):
         # self.skip_layers = self.jump_or_not(levels)
         # manual set
         self.skip_layers = self.jump_or_not_manual()
+        self.layer_drop_rate = 0.3
+        self.scaling = False
+        self.Formula = False
+        self.source_target_drop = True
         print("SKip Layers :", self.skip_layers)
+        print("layer_drop_rate:%f" % self.layer_drop_rate)
 
     def jump_or_not_manual(self):
-        # all = {0.33: [0, 1, 4, 8, 13], 0.66: [0, 1, 2, 4, 6, 8, 10, 13], 1.0: [x for x in range(0, 14)]}
-        all = {0.33: [0, 1, 3, 8], 0.66: [0, 1, 2, 4, 5, 8, 10], 1.0: [x for x in range(0, 14)]}
+        # manual
+        all = {0.33: [0, 1, 4, 8, 12], 0.66: [0, 1, 2, 4, 6, 8, 10, 12], 1.0: [x for x in range(0, 14)]}
+        # all = {0.33: [0, 1, 4, 8, 12], 0.66: [0, 1, 3, 5, 6, 8, 10, 12], 1.0: [x for x in range(0, 14)]}
+        # all = {0.33: [0, 1, 3, 8], 0.66: [0, 1, 2, 4, 5, 8, 10], 1.0: [x for x in range(0, 14)]}
         return all
 
     def jump_or_not(self, levels):
@@ -352,7 +359,7 @@ class JointAttentionDecoder(FairseqIncrementalDecoder):
             skip_layers = []
             for i in range(0, len(self.layers), step):
                 skip_layers.append(i)
-
+            # append last layer
             if skip_layers[-1] != len(self.layers) - 1:
                 skip_layers.append(len(self.layers) - 1)
             all[level] = skip_layers
@@ -370,16 +377,25 @@ class JointAttentionDecoder(FairseqIncrementalDecoder):
         return True
 
     def layer_drop(self, i):
-        p = 0.1
+        p = self.layer_drop_rate
         #
         i += 1
-        Formula = False
         n = random.random()
-        if Formula:
-            pl = float((i / len(self.layers)) * (1 - p))
+        if self.Formula:
+            pl = float((i / len(self.layers)) * (1. - p))
         else:
             pl = p
         return n <= pl
+
+    def formula(self, i):
+        i += 1
+        p = self.layer_drop_rate
+        # 2016 paper, scale down
+        pl = 1 - float((i / len(self.layers)) * (1. - p))
+        # 2019 paper Speech
+        # pl = (i / len(self.layers)) * (1 - p)
+        # pl = 1 / (1 - pl)
+        return pl
 
     def forward(
             self,
@@ -459,9 +475,9 @@ class JointAttentionDecoder(FairseqIncrementalDecoder):
 
         # transformer layers
         for i, layer in enumerate(self.layers):
-            # training with dropout
-            if self.training and self.layer_drop(i):
-                continue
+            # training with dropout - normal way
+            # if self.training and self.layer_drop(i):
+            #     continue
 
             # inference
             if not self.training and i not in self.skip_layers[level]:
@@ -482,33 +498,43 @@ class JointAttentionDecoder(FairseqIncrementalDecoder):
             else:
                 self_attn_mask = None
 
-            state = incremental_state
-            if process_source:
-                if state is None:
-                    state = {}
-                if self.kernel_size_list is not None:
-                    source_mask = self.local_mask(
-                        source, self.kernel_size_list[i], causal=False)
-                else:
-                    source_mask = None
-                source, attn = layer(
-                    source,
+            if self.source_target_drop and not self.layer_drop(i) or i == 0:
+                state = incremental_state
+                if process_source:
+                    if state is None:
+                        state = {}
+                    if self.kernel_size_list is not None:
+                        source_mask = self.local_mask(
+                            source, self.kernel_size_list[i], causal=False)
+                    else:
+                        source_mask = None
+                    source, attn = layer(
+                        source,
+                        None,
+                        None,
+                        state,
+                        self_attn_mask=source_mask,
+                        self_attn_padding_mask=source_padding_mask
+                    )
+                    inner_states.append(source)
+
+            if self.source_target_drop and not self.layer_drop(i):
+                x, attn = layer(
+                    x,
                     None,
                     None,
                     state,
-                    self_attn_mask=source_mask,
-                    self_attn_padding_mask=source_padding_mask
+                    self_attn_mask=self_attn_mask,
+                    self_attn_padding_mask=self_attn_padding_mask
                 )
-                inner_states.append(source)
-
-            x, attn = layer(
-                x,
-                None,
-                None,
-                state,
-                self_attn_mask=self_attn_mask,
-                self_attn_padding_mask=self_attn_padding_mask
-            )
+            # x scaling
+            if self.scaling:
+                # training
+                if self.training:
+                    x = x * self.formula(i)
+                # inference
+                if not self.training:
+                    x = x * self.formula(i)
             inner_states.append(x)
 
         if self.normalize:

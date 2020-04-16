@@ -63,6 +63,9 @@ class ProtectedMultiheadAttention(nn.Module):
         if self.bias_v is not None:
             nn.init.xavier_normal_(self.bias_v)
 
+    def cat_all_encoder_states(self, incremental_state):
+        return incremental_state
+
     def forward(self, query, key, value, key_padding_mask=None, incremental_state=None,
                 need_weights=True, static_kv=False, attn_mask=None):
         """Input shape: Time x Batch x Channel
@@ -140,10 +143,16 @@ class ProtectedMultiheadAttention(nn.Module):
                     v = prev_value
                 else:
                     v = torch.cat((prev_value, v), dim=1)
-            saved_state['prev_key'] = k.view(bsz, self.num_heads, -1, self.head_dim)
-            saved_state['prev_value'] = v.view(bsz, self.num_heads, -1, self.head_dim)
 
-            self._set_input_buffer(incremental_state, saved_state)
+            # REVO, protecting decoder won't save any state
+            if attn_mask is None:
+                saved_state['prev_key'] = k.view(bsz, self.num_heads, -1, self.head_dim)
+                saved_state['prev_value'] = v.view(bsz, self.num_heads, -1, self.head_dim)
+                self._set_input_buffer(incremental_state, saved_state)
+
+            # # revo
+            if len(incremental_state) > 1:
+                del incremental_state[list(incremental_state.keys())[-2]]
 
         src_len = k.size(1)
 
