@@ -332,15 +332,18 @@ class JointAttentionDecoder(FairseqIncrementalDecoder):
             self.layer_norm = LayerNorm(embed_dim)
 
         # self.skipped_layer = 0
-        levels = [0.33, 0.66, 1.]
+        max_level = 10
+        step = 1. / float(max_level)
+        levels = [round(x * step, 2) for x in range(1, max_level + 1)]
         # automate
-        # self.skip_layers = self.jump_or_not(levels)
+        self.skip_layers = self.jump_or_not(levels)
         # manual set
-        self.skip_layers = self.jump_or_not_manual()
-        self.layer_drop_rate = 0.3
+        # self.skip_layers = self.jump_or_not_manual()
+        self.layer_drop_rate = 0.
+        #
         self.scaling = False
         self.Formula = False
-        self.source_target_drop = True
+        self.source_target_drop = False
         print("SKip Layers :", self.skip_layers)
         print("layer_drop_rate:%f" % self.layer_drop_rate)
 
@@ -387,7 +390,7 @@ class JointAttentionDecoder(FairseqIncrementalDecoder):
             pl = p
         return n <= pl
 
-    def formula(self, i):
+    def scale_whole_layer(self, i):
         i += 1
         p = self.layer_drop_rate
         # 2016 paper, scale down
@@ -476,12 +479,12 @@ class JointAttentionDecoder(FairseqIncrementalDecoder):
         # transformer layers
         for i, layer in enumerate(self.layers):
             # training with dropout - normal way
-            # if self.training and self.layer_drop(i):
-            #     continue
-
-            # inference
-            if not self.training and i not in self.skip_layers[level]:
+            if self.training and self.layer_drop(i):
                 continue
+
+            # skipping inference
+            # if not self.training and i not in self.skip_layers[level]:
+            #     continue
             #
             if self.kernel_size_list is not None:
                 target_mask = self.local_mask(
@@ -498,43 +501,39 @@ class JointAttentionDecoder(FairseqIncrementalDecoder):
             else:
                 self_attn_mask = None
 
-            if self.source_target_drop and not self.layer_drop(i) or i == 0:
-                state = incremental_state
-                if process_source:
-                    if state is None:
-                        state = {}
-                    if self.kernel_size_list is not None:
-                        source_mask = self.local_mask(
-                            source, self.kernel_size_list[i], causal=False)
-                    else:
-                        source_mask = None
-                    source, attn = layer(
-                        source,
-                        None,
-                        None,
-                        state,
-                        self_attn_mask=source_mask,
-                        self_attn_padding_mask=source_padding_mask
-                    )
-                    inner_states.append(source)
-
-            if self.source_target_drop and not self.layer_drop(i):
-                x, attn = layer(
-                    x,
+            # if self.source_target_drop and not self.layer_drop(i) or i == 0 or not self.training:
+            state = incremental_state
+            if process_source:
+                if state is None:
+                    state = {}
+                if self.kernel_size_list is not None:
+                    source_mask = self.local_mask(
+                        source, self.kernel_size_list[i], causal=False)
+                else:
+                    source_mask = None
+                source, attn = layer(
+                    source,
                     None,
                     None,
                     state,
-                    self_attn_mask=self_attn_mask,
-                    self_attn_padding_mask=self_attn_padding_mask
+                    self_attn_mask=source_mask,
+                    self_attn_padding_mask=source_padding_mask
                 )
+                inner_states.append(source)
+
+            # if self.source_target_drop and not self.layer_drop(i) or not self.training:
+            x, attn = layer(
+                x,
+                None,
+                None,
+                state,
+                self_attn_mask=self_attn_mask,
+                self_attn_padding_mask=self_attn_padding_mask
+            )
             # x scaling
             if self.scaling:
                 # training
-                if self.training:
-                    x = x * self.formula(i)
-                # inference
-                if not self.training:
-                    x = x * self.formula(i)
+                x = x * self.scale_whole_layer(i)
             inner_states.append(x)
 
         if self.normalize:

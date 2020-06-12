@@ -44,9 +44,7 @@ cpdef list batch_by_size_fast_cond(
 
     #
     cdef list t = []
-    # cdef grouped_indices = []
-
-    levels = [0.33, 0.66, 1.0]
+    levels = con_fn()
     # np_num = random.choice(levels)
     for i, indices in enumerate(indices_view):
         # initial values
@@ -76,7 +74,6 @@ cpdef list batch_by_size_fast_cond(
                 t = batch[:mod_len][:]
                 t.append(np_num)
                 batches.append(t)
-                np_num = random.choice(levels)
                 # append random info
                 batch = batch[mod_len:]
                 sample_lens = sample_lens[mod_len:]

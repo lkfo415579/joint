@@ -78,9 +78,10 @@ def get_incremental_state(module, incremental_state, key):
     full_key = _get_full_incremental_state_key(module, key)
     if incremental_state is None or full_key not in incremental_state:
         # REVO, if could not find the same layer encoder attention, therefore look for the previous layer
-        keys = list(incremental_state.keys())
-        if len(keys):
-            return incremental_state[keys[-1]]
+        # it is pops error if you are being inference
+        # keys = list(incremental_state.keys())
+        # if len(keys):
+        #     return incremental_state[keys[-1]]
         #
         return None
     return incremental_state[full_key]

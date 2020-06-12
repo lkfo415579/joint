@@ -49,6 +49,10 @@ class ProtectedMultiheadAttention(nn.Module):
 
         self.onnx_trace = False
 
+        # revo
+        self.max_updates = 50000 / (1 - (1 / self.head_dim))
+        self.multi_atten_step = 0
+
     def prepare_for_onnx_export_(self):
         self.onnx_trace = True
 
@@ -66,6 +70,17 @@ class ProtectedMultiheadAttention(nn.Module):
     def cat_all_encoder_states(self, incremental_state):
         return incremental_state
 
+    def cl_scaling(self):
+        train_step = self.multi_atten_step // 2
+        dk = self.head_dim * ((self.max_updates - train_step + 1) / self.max_updates)
+        self.multi_atten_step += 1
+        # inference
+        # dk = 2.5
+        # LOG
+        if train_step % 1000 == 0:
+            print("# Current dk:{}, train_step:{}".format(dk, train_step))
+        return dk ** -0.5
+
     def forward(self, query, key, value, key_padding_mask=None, incremental_state=None,
                 need_weights=True, static_kv=False, attn_mask=None):
         """Input shape: Time x Batch x Channel
@@ -76,7 +91,6 @@ class ProtectedMultiheadAttention(nn.Module):
         the key by passing a binary ByteTensor (`key_padding_mask`) with shape:
         batch x src_len, where padding elements are indicated by 1s.
         """
-
         qkv_same = query.data_ptr() == key.data_ptr() == value.data_ptr()
         kv_same = key.data_ptr() == value.data_ptr()
 
@@ -111,7 +125,9 @@ class ProtectedMultiheadAttention(nn.Module):
             q = self.in_proj_q(query)
             k = self.in_proj_k(key)
             v = self.in_proj_v(value)
+
         q *= self.scaling
+        # q *= self.cl_scaling()
 
         if self.bias_k is not None:
             assert self.bias_v is not None
@@ -149,10 +165,6 @@ class ProtectedMultiheadAttention(nn.Module):
                 saved_state['prev_key'] = k.view(bsz, self.num_heads, -1, self.head_dim)
                 saved_state['prev_value'] = v.view(bsz, self.num_heads, -1, self.head_dim)
                 self._set_input_buffer(incremental_state, saved_state)
-
-            # # revo
-            if len(incremental_state) > 1:
-                del incremental_state[list(incremental_state.keys())[-2]]
 
         src_len = k.size(1)
 

@@ -220,20 +220,32 @@ def filter_by_size(indices, dataset, max_positions, raise_exception=False):
 #     return True
 
 def group_sents(indices, rarity_cond):
-    print("# Grouping sents by levels.")
-    num_level = 2.28
-    levels = [0.33, 0.66, 1.]
+    max_level = 10
+    step = 1. / float(max_level)
+    linear_level = max_level - 1
+    #
+    print("# Grouping sents by levels, max-level:%d." % max_level)
+    levels = [round(x * step, 2) for x in range(1, max_level + 1)]
     new_indices = [[] for _ in range(len(levels))]
     size = 0
     for i in range(len(indices)):
         score = rarity_cond(indices[i])
         score = float(score)
-        idx = round(num_level * score)
-        # sent_level = levels[idx]
+        idx = round(linear_level * score)
         new_indices[idx].append(indices[i])
         size += 1
     # print("# DEBUG, Grouping size:%d" % size)
     return new_indices
+
+
+def get_single_batch_cond():
+    max_level = 10
+    step = 1. / float(max_level)
+    levels = [round(x * step, 2) for x in range(1, max_level + 1)]
+    # if less than 3 make it to be 3
+    levels[0], levels[1], levels[2] = levels[3], levels[3], levels[3]
+    return levels
+
 
 
 def batch_by_size(
@@ -276,7 +288,7 @@ def batch_by_size(
         print("# Using rarity filter Batch Generator.. By Revo")
         indices = indices.tolist()
         indices = group_sents(indices, rarity_cond)
-        return batch_by_size_fast_cond(indices, num_tokens_fn, rarity_cond, max_tokens, max_sentences, bsz_mult)
+        return batch_by_size_fast_cond(indices, num_tokens_fn, get_single_batch_cond, max_tokens, max_sentences, bsz_mult)
     return batch_by_size_fast(indices, num_tokens_fn, max_tokens, max_sentences, bsz_mult)
 
 
